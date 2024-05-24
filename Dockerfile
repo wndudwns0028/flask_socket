@@ -14,4 +14,4 @@ RUN apt-get update && apt-get install -y libpq-dev build-essential
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Flask 애플리케이션을 실행
-CMD ["python3", "flask-server.py"]
+CMD ["python3", "chat-server.py"]
