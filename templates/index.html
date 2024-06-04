@@ -1,31 +1,48 @@
-<div class="messages"></div>
-<form>
-    <input type="text" class="nickname">
-    <input type="text" class="message">
-    <input type="submit" value="전송하기">
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chat Program</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+</head>
+<body>
+    <h1>간단한 채팅 프로그램</h1> <!-- 소제목 추가 -->
+    <div class="messages"></div>
+    <form>
+        <input type="text" class="nickname" placeholder="nickname">
+        <input type="text" class="message" placeholder="message">
+        <input type="submit" value="전송하기">
+    </form>
 
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.4/socket.io.js"></script>-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js"></script>
+    <script type="text/javascript">
+        var socket = io.connect("http://" + document.domain + ":" + location.port);
+        socket.on("connect", function() {
+            socket.emit("event", {data:"Connect"});
 
-<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
-<script type="text/javascript">
-    var socket = io.connect("http://" + document.domain + ":" + location.port);
-    socket.on("connect", function() {
-        socket.emit("event", {data:"Connect"});
-
-        var form = $("form").on("submit", function(e) {
-            e.preventDefault();
-            let nickname = $("input.nickname").val();
-            let message = $("input.message").val();
-            socket.emit("chat", {
-                nickname: nickname,
-                message: message
+            var form = $("form").on("submit", function(e) {
+                e.preventDefault();
+                let nickname = $("input.nickname").val();
+                let message = $("input.message").val();
+                if (!nickname || !message) {
+                    alert("닉네임과 메시지를 모두 입력하세요.");
+                    return;
+                }
+                socket.emit("chat", {
+                    nickname: nickname,
+                    message: message
                 });
-            $("input.message").val("").focus();
-        })
-    });
-    socket.on("response", function(msg) {
-        $("div.messages").append("<div><b style='color:blue'>" + msg.nickname + "</b> " + msg.message + "</div>");
-    });
-</script>
+                $("input.message").val("").focus();
+            });
+        });
+
+        socket.on("response", function(msg) {
+            let newMessage = $("<div><b style='color:blue'>" + msg.nickname + "</b> " + msg.message + "</div>");
+            newMessage.hide().appendTo("div.messages").fadeIn(500).delay(5000).fadeOut(500, function() {
+                $(this).remove();
+            });
+        });
+    </script>
+</body>
+</html>
